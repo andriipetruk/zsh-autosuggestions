@@ -15,7 +15,7 @@ _zsh_autosuggest_clear() {
 _zsh_autosuggest_modify() {
 	local -i retval
 
-	# Clear suggestion while original widget runs
+	# Clear suggestion while waiting for next one
 	unset POSTDISPLAY
 
 	# Original widget modifies the buffer
@@ -23,18 +23,8 @@ _zsh_autosuggest_modify() {
 	retval=$?
 
 	# Get a new suggestion if the buffer is not empty after modification
-	local suggestion
 	if [ $#BUFFER -gt 0 ]; then
-		if [ -z "$ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE" -o $#BUFFER -lt "$ZSH_AUTOSUGGEST_BUFFER_MAX_SIZE" ]; then
-			suggestion="$(_zsh_autosuggest_suggestion "$BUFFER")"
-		fi
-	fi
-
-	# Add the suggestion to the POSTDISPLAY
-	if [ -n "$suggestion" ]; then
-		POSTDISPLAY="${suggestion#$BUFFER}"
-	else
-		unset POSTDISPLAY
+		_zsh_autosuggest_async_fetch_suggestion "$BUFFER"
 	fi
 
 	return $retval
@@ -125,3 +115,21 @@ done
 zle -N autosuggest-accept _zsh_autosuggest_widget_accept
 zle -N autosuggest-clear _zsh_autosuggest_widget_clear
 zle -N autosuggest-execute _zsh_autosuggest_widget_execute
+
+_zsh_autosuggest_show_suggestion() {
+	local suggestion=$1
+
+	_zsh_autosuggest_highlight_reset
+
+	if [ -n "$suggestion" ]; then
+		POSTDISPLAY="${suggestion#$BUFFER}"
+	else
+		unset POSTDISPLAY
+	fi
+
+	_zsh_autosuggest_highlight_apply
+
+	zle -R
+}
+
+zle -N _autosuggest-show-suggestion _zsh_autosuggest_show_suggestion
