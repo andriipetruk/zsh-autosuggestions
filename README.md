@@ -81,7 +81,7 @@ This plugin works by triggering custom behavior when certain [zle widgets](http:
 - `ZSH_AUTOSUGGEST_EXECUTE_WIDGETS`: Widgets in this array will execute the suggestion when invoked.
 - `ZSH_AUTOSUGGEST_PARTIAL_ACCEPT_WIDGETS`: Widgets in this array will partially accept the suggestion when invoked.
 
-Widgets not in any of these lists will update the suggestion when invoked.
+Widgets that modify the buffer and are not found in any of these arrays will fetch a new suggestion after they are invoked.
 
 **Note:** A widget shouldn't belong to more than one of the above arrays.
 
